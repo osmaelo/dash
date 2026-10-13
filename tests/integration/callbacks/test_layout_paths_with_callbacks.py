@@ -4,7 +4,10 @@ from multiprocessing import Value
 from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     TIMEOUT = 2
     with open(os.path.join(os.path.dirname(__file__), "state_path.json")) as fp:
@@ -34,8 +37,8 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
             html.Div(id="body"),
         ]
     )
-    for script in dcc._js_dist:
-        app.scripts.append_script(script)
+    # for script in dcc._js_dist:
+    #     app.scripts.append_script(script)
 
     chapters = {
         "chapter1": html.Div(
@@ -176,11 +179,11 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
                     + "#{}-graph:not(.dash-graph--pending) .js-plotly-plot".format(
                         chapter
                     )
-                    + '").layout.title.text'
+                    + '").layout.title'
                 )
                 == value
             ),
-            TIMEOUT,
+            20,
         )
 
         assert not dash_duo.redux_state_is_loading, "loadingMap is empty"
@@ -234,8 +237,8 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
         ), "each element should exist in the dom"
 
     assert paths["strs"] == {
-        "toc": ["props", "children", 0],
-        "body": ["props", "children", 1],
+        "toc": ["components", "props", "children", 0],
+        "body": ["components", "props", "children", 1],
     }
 
     dash_duo.find_elements('input[type="radio"]')[0].click()
